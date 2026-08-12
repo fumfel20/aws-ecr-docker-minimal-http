@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS ECR + Docker + Terraform Demo</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.75);
+            --text-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --success-color: #4ade80;
+            --tech-bg: rgba(56, 189, 248, 0.1);
+            --tech-border: rgba(56, 189, 248, 0.25);
+        }
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            max-width: 520px;
+            width: 90%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px -12px rgba(56, 189, 248, 0.15);
+        }
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        p {
+            color: #94a3b8;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin: 0.75rem 0;
+        }
+        .tech-tags {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin: 1.5rem 0;
+        }
+        .tag {
+            background: var(--tech-bg);
+            border: 1px solid var(--tech-border);
+            color: var(--accent-color);
+            padding: 0.4rem 0.9rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--success-color);
+            font-weight: 600;
+            margin-top: 1.25rem;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            letter-spacing: 0.05em;
+        }
+        .info-box {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-top: 1.5rem;
+            text-align: left;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .info-box ul {
+            margin: 0.5rem 0 0 0;
+            padding-left: 1.2rem;
+        }
+        .info-box li {
+            margin-bottom: 0.4rem;
+            color: #94a3b8;
+        }
+        .footer {
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AWS + ECR + Docker + Terraform</h1>
+        <p>Web application running inside a Docker container on an AWS EC2 instance.</p>
+        
+        <div class="tech-tags">
+            <span class="tag">🚀 Terraform</span>
+            <span class="tag">📦 AWS ECR</span>
+            <span class="tag">🐳 Docker</span>
+            <span class="tag">☁️ AWS EC2</span>
+        </div>
+
+        <div class="info-box">
+            <p style="margin: 0 0 0.5rem 0; font-weight: 600; color: var(--accent-color);">Architecture Flow:</p>
+            <ul>
+                <li><strong>Terraform</strong> provisions the Amazon ECR repository and EC2 instance.</li>
+                <li>The <strong>Docker</strong> image is built and pushed to <strong>AWS ECR</strong>.</li>
+                <li>The EC2 instance pulls the image from the ECR repository and runs the container.</li>
+            </ul>
+        </div>
+
+        <div class="badge">● Container Up & Running</div>
+        <div class="footer">AWS Infrastructure & Container Demo</div>
+    </div>
+</body>
+</html>
