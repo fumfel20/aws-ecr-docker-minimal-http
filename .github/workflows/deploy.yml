@@ -8,7 +8,7 @@ on:
 
 env:
   AWS_REGION: eu-west-1
-  ECR_REPOSITORY: aws-ecr-docker-minimal-http # podmień na swoją nazwę repozytorium ECR
+  ECR_REPOSITORY: aws-ecr-docker-minimal-http # replace with your ECR repository name
 
 jobs:
   build-and-deploy:
@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. Konfiguracja danych dostępowych AWS dla GitHub Actions (do budowania/pushu do ECR)
+      # 1. Configure AWS credentials for GitHub Actions (to build/push to ECR)
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -27,12 +27,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 2. Logowanie runnera GitHub Actions do Amazon ECR
+      # 2. Log in GitHub Actions runner to Amazon ECR
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 3. Budowanie i wysyłanie obrazu Docker do ECR
+      # 3. Build, tag, and push Docker image to ECR
       - name: Build, tag, and push Docker image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -41,7 +41,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # 4. Połączenie SSH z EC2 i uruchomienie pobranego obrazu z ECR
+      # 4. Connect via SSH to EC2 and run the pulled image from ECR
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
