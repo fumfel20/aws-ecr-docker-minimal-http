@@ -1,0 +1,50 @@
+name: Deploy to Amazon EC2
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: eu-west-1
+  ECR_REPOSITORY: aws-ecr-docker-minimal-http # replace with your ECR repository name
+
+jobs:
+  deploy:
+    name: Deploy Container to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # 1. Variables
+            REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
+            IMAGE_URI="$REGISTRY/${{ env.ECR_REPOSITORY }}:latest"
+
+            # 2. Log in to ECR from EC2 (uses IAM role attached to EC2)
+            aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin $REGISTRY
+
+            # 3. Pull the latest image
+            docker pull $IMAGE_URI
+
+            # 4. Stop and remove the previous container (if it exists)
+            docker stop my-app || true
+            docker rm my-app || true
+
+            # 5. Run the new container on port 80
+            docker run -d \
+              --name my-app \
+              --restart always \
+              -p 80:80 \
+              $IMAGE_URI
+
+            # 6. Remove unused old images (cleanup)
+            docker image prune -f
