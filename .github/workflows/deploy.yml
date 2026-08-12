@@ -26,13 +26,24 @@ jobs:
             REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
             IMAGE_URI="$REGISTRY/${{ env.ECR_REPOSITORY }}:latest"
 
-            echo "Logging in to ECR on EC2 using IAM Role..."
+            echo "Pulling latest code on EC2..."
+            if [ -d "$HOME/app" ]; then
+              cd "$HOME/app" && git pull
+            else
+              git clone https://github.com/fumfel20/aws-ecr-docker-minimal-http.git "$HOME/app"
+              cd "$HOME/app"
+            fi
+
+            echo "Building updated Docker image on EC2..."
+            docker build -t $IMAGE_URI .
+
+            echo "Logging in to ECR on EC2..."
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin $REGISTRY
 
-            echo "Pulling new image from ECR..."
-            docker pull $IMAGE_URI
+            echo "Pushing new image to ECR..."
+            docker push $IMAGE_URI
 
-            echo "Stopping old container..."
+            echo "Restarting container..."
             docker stop my-app || true
             docker rm my-app || true
 
