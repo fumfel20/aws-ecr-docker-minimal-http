@@ -1,4 +1,4 @@
-name: Build, Push to ECR and Deploy to EC2
+name: Deploy Container to EC2
 
 on:
   push:
@@ -11,37 +11,11 @@ env:
   ECR_REPOSITORY: aws-ecr-docker-minimal-http # replace with your ECR repository name
 
 jobs:
-  build-and-deploy:
-    name: Build, Push & Deploy
+  deploy:
+    name: Deploy to EC2
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      # 1. Configure AWS credentials for GitHub Actions (to build/push to ECR)
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      # 2. Log in GitHub Actions runner to Amazon ECR
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      # 3. Build, tag, and push Docker image to ECR
-      - name: Build, tag, and push Docker image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: latest
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-      # 4. Connect via SSH to EC2 and run the pulled image from ECR
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -52,17 +26,17 @@ jobs:
             REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com"
             IMAGE_URI="$REGISTRY/${{ env.ECR_REPOSITORY }}:latest"
 
-            echo "Logging in to ECR on EC2..."
+            echo "Logging in to ECR on EC2 using IAM Role..."
             aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin $REGISTRY
 
-            echo "Pulling new image..."
+            echo "Pulling new image from ECR..."
             docker pull $IMAGE_URI
 
             echo "Stopping old container..."
             docker stop my-app || true
             docker rm my-app || true
 
-            echo "Running new container..."
+            echo "Running new container on port 80..."
             docker run -d \
               --name my-app \
               --restart always \
